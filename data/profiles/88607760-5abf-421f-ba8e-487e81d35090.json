@@ -1,0 +1,39 @@
+{
+  "id": "88607760-5abf-421f-ba8e-487e81d35090",
+  "name": "Youth Advisory Council",
+  "description": "Volunteer youth council position for residents aged 14–21 to advise local government.",
+  "job_description": "Youth Advisory Council members represent the voices of young residents by attending monthly meetings, participating in community projects, and providing input to elected officials on matters affecting youth. Members are expected to be engaged, articulate, and passionate about their community. No prior experience required.",
+  "criteria": [
+    {
+      "id": "80357e64-7560-4b11-940e-a6d20039084d",
+      "name": "Community Passion",
+      "description": "Expresses genuine interest in local government, community improvement, or civic engagement.",
+      "weight": 9
+    },
+    {
+      "id": "78106783-0aac-47f2-822c-dd75bc9b884f",
+      "name": "Communication & Confidence",
+      "description": "Articulates thoughts clearly and confidently in written form.",
+      "weight": 7
+    },
+    {
+      "id": "bfe26530-40d0-4428-969e-b24746bfbb2c",
+      "name": "Leadership Potential",
+      "description": "Shows initiative, leadership, or involvement in school or community activities.",
+      "weight": 8
+    },
+    {
+      "id": "9d329329-0518-499c-b2b5-5958ddb9da2d",
+      "name": "Diversity of Perspective",
+      "description": "Brings a unique or underrepresented viewpoint that enriches council discussions.",
+      "weight": 6
+    },
+    {
+      "id": "0a3b5b50-cbad-45c2-a606-b34f9e6fe259",
+      "name": "Commitment to Attendance",
+      "description": "Understands and commits to the expected time commitment for monthly meetings and events.",
+      "weight": 7
+    }
+  ],
+  "ollama_model": "gemma3:1b"
+}

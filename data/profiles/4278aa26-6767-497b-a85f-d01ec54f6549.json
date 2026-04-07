@@ -1,0 +1,39 @@
+{
+  "id": "4278aa26-6767-497b-a85f-d01ec54f6549",
+  "name": "Planning & Zoning Intern",
+  "description": "Intern supporting the community planning department with research, GIS, and public meeting prep.",
+  "job_description": "The Planning Intern will support staff with land use research, zoning analysis, GIS mapping, comprehensive plan updates, and preparation of materials for public hearings. The ideal candidate is detail-oriented, has a background in urban planning or geography, and is comfortable with data analysis and mapping tools.",
+  "criteria": [
+    {
+      "id": "55ac8ee7-3e19-4f45-93e7-3825d0005a62",
+      "name": "Urban Planning / Geography Background",
+      "description": "Enrolled in or recently completed a degree in urban planning, geography, public policy, or related field.",
+      "weight": 9
+    },
+    {
+      "id": "8797b1e9-aed9-45a3-8c43-76a3066c3e6c",
+      "name": "GIS Experience",
+      "description": "Familiarity with GIS tools such as ArcGIS or QGIS for spatial data analysis and mapping.",
+      "weight": 8
+    },
+    {
+      "id": "0709e798-e807-421d-95ee-ac896c18e6cb",
+      "name": "Research & Analytical Skills",
+      "description": "Demonstrated ability to collect, analyze, and summarize data and policy information.",
+      "weight": 7
+    },
+    {
+      "id": "f18f1164-66fc-4068-8095-44b30a7e2ee3",
+      "name": "Writing & Report Preparation",
+      "description": "Strong technical writing skills for public documents and staff reports.",
+      "weight": 6
+    },
+    {
+      "id": "17d7dd4c-5a41-4446-aade-f98b09db00d1",
+      "name": "Attention to Detail",
+      "description": "Shows carefulness and precision in presented work and application materials.",
+      "weight": 5
+    }
+  ],
+  "ollama_model": "gemma3:1b"
+}

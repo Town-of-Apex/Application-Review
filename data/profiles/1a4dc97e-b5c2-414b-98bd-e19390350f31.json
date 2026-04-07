@@ -1,0 +1,33 @@
+{
+  "id": "1a4dc97e-b5c2-414b-98bd-e19390350f31",
+  "name": "Information Technology Intern",
+  "description": "An intern for the Information Technology department, supporting the Security and Innovations division on smart-city initiatives.",
+  "job_description": "The Town of Apex is seeking a motivated IT Intern to support the Security and Innovation division. This role offers hands-on experience working at the intersection of cybersecurity, emerging technology, and municipal service delivery. The intern will assist with a variety of initiatives, including basic security monitoring and documentation, research and evaluation of new technologies, and prototyping small-scale solutions that improve internal processes or resident-facing services. This position is ideal for a student who is curious, adaptable, and interested in applying technical skills in a real-world public sector environment.\n\nThe intern will collaborate with IT staff across multiple functions, gaining exposure to areas such as endpoint security, data management, automation, and civic technology innovation. Responsibilities may include analyzing data for insights, supporting pilots of new tools or systems, documenting workflows, and assisting with troubleshooting and user support as needed. Successful candidates will demonstrate strong problem-solving ability, clear communication skills, and a willingness to learn in a fast-paced, evolving environment where experimentation and practical impact are both valued.",
+  "criteria": [
+    {
+      "id": "fc7cd121-9b04-4a2f-b066-90eb2b7066b9",
+      "name": "Educational Alignment",
+      "description": "College-level coursework in technology, computer science, innovation, or local government",
+      "weight": 7
+    },
+    {
+      "id": "588b78ab-40da-4d4a-83d4-235486b2d24d",
+      "name": "Creative Thinking",
+      "description": "Interest in creative activities, innovative thinking, or general creative problem-solving",
+      "weight": 3
+    },
+    {
+      "id": "661a8ae5-d7ff-414d-8bb6-3121cfc87b01",
+      "name": "Collaboration",
+      "description": "Works well with others in groups on projects with multiple and diverse stakeholders",
+      "weight": 6
+    },
+    {
+      "id": "ba2b20cb-a90e-49bb-b1d5-733252a6337a",
+      "name": "Local to Apex or North Carolina",
+      "description": "Someone local to Apex, the Research Triangle Park area, or North Carolina in general.",
+      "weight": 2
+    }
+  ],
+  "ollama_model": "gemma3:1b"
+}

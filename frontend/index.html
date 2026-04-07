@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Application Review</title>
+  <meta name="description" content="AI-assisted application screening tool for internships and volunteer positions. Generate alignment scores to help staff prioritize their review queue." />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ── Header ─────────────────────────────────────── -->
+  <header class="app-header">
+    <a class="header-brand" href="#" onclick="switchTab('evaluate'); return false;">
+      <div class="brand-icon">📋</div>
+      <div class="brand-text">
+        <span class="brand-name">Application Review</span>
+        <span class="brand-sub">Alignment Review</span>
+      </div>
+    </a>
+
+    <nav class="app-nav">
+      <button class="nav-tab active" id="tab-btn-evaluate" onclick="switchTab('evaluate')">
+        <span>🔍</span> Evaluate
+      </button>
+      <button class="nav-tab" id="tab-btn-profiles" onclick="switchTab('profiles')">
+        <span>📁</span> Position Profiles
+      </button>
+    </nav>
+
+    <div class="ollama-status checking" id="ollama-status">
+      <div class="status-dot pulse"></div>
+      <span id="ollama-status-text">Checking…</span>
+    </div>
+  </header>
+
+  <!-- ── Main ───────────────────────────────────────── -->
+  <main class="app-content">
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- EVALUATE TAB                                   -->
+    <!-- ══════════════════════════════════════════════ -->
+    <div class="tab-panel active" id="panel-evaluate">
+      <div class="page-header">
+        <h1 class="page-title">Evaluate Application</h1>
+        <p class="page-subtitle">Select a position profile, paste the application content and resume, then let the AI generate an alignment score for human review.</p>
+      </div>
+
+      <div class="evaluate-layout">
+
+        <!-- Left: Form -->
+        <div class="card">
+          <h2 class="section-title">📌 Position &amp; Applicant</h2>
+
+          <div class="profile-selector-row">
+            <div class="form-group" style="margin-bottom:0">
+              <label class="form-label" for="eval-profile-select">Position Profile <span class="required">*</span></label>
+              <select class="form-select" id="eval-profile-select" onchange="onProfileSelected()">
+                <option value="">— Select a position —</option>
+              </select>
+            </div>
+            <button class="profile-info-pill" id="profile-info-pill" title="View profile details" onclick="showProfileModal()" style="display:none">
+              ℹ️ Profile Details
+            </button>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="eval-applicant-name">Applicant Name <span class="required">*</span></label>
+            <input class="form-input" type="text" id="eval-applicant-name" placeholder="e.g. Jane Smith" autocomplete="off" />
+          </div>
+
+          <h2 class="section-title" style="margin-top:1.5rem">📝 Application Content</h2>
+
+          <div class="form-group">
+            <label class="form-label" for="eval-application-text">Application Form Responses</label>
+            <textarea
+              class="form-textarea"
+              id="eval-application-text"
+              placeholder="Paste the applicant's form responses here — answers to short-answer questions, dates, yes/no responses, etc."
+              style="min-height:160px"
+            ></textarea>
+          </div>
+
+          <h2 class="section-title" style="margin-top:1rem">📄 Resume / CV</h2>
+
+          <div class="resume-tabs" id="resume-tabs">
+            <button class="resume-tab-btn active" id="resume-tab-upload" onclick="switchResumeTab('upload')">📎 Upload PDF</button>
+            <button class="resume-tab-btn" id="resume-tab-text" onclick="switchResumeTab('text')">✏️ Paste Text</button>
+          </div>
+
+          <!-- PDF Upload -->
+          <div id="resume-upload-panel">
+            <div class="upload-zone" id="upload-zone">
+              <input type="file" id="resume-file-input" accept=".pdf,.txt" onchange="onResumeFileSelected(this)" />
+              <div class="upload-icon">📂</div>
+              <div class="upload-label"><strong>Click to choose</strong> or drag &amp; drop</div>
+              <div class="upload-label" style="font-size:0.75rem; margin-top:0.2rem">PDF or plain text · resume/CV only</div>
+              <div class="upload-filename hidden" id="upload-filename"></div>
+            </div>
+          </div>
+
+          <!-- Text paste -->
+          <div id="resume-text-panel" class="hidden">
+            <div class="form-group" style="margin-bottom:0">
+              <textarea
+                class="form-textarea"
+                id="eval-resume-text"
+                placeholder="Paste the resume text here…"
+                style="min-height:180px; font-family: 'Courier New', monospace; font-size:0.82rem"
+              ></textarea>
+            </div>
+          </div>
+
+          <div style="margin-top:1.75rem; display:flex; justify-content:flex-end;">
+            <button class="btn btn-primary btn-lg" id="evaluate-btn" onclick="submitEvaluation()">
+              ✨ Generate Score
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: Results -->
+        <div class="card results-panel" id="results-panel">
+          <h2 class="section-title">📊 Alignment Score</h2>
+
+          <!-- Empty state -->
+          <div class="results-empty" id="results-empty">
+            <div class="results-empty-icon">🤖</div>
+            <div class="results-empty-text">Fill in the form and click <strong>Generate Score</strong> to see the AI evaluation here.</div>
+          </div>
+
+          <!-- Evaluating state -->
+          <div class="results-empty hidden" id="results-loading">
+            <div class="results-empty-icon" style="animation: pulse 1.5s ease-in-out infinite">⚙️</div>
+            <div class="results-empty-text"><strong>Evaluating…</strong><br/>The AI is reading the application.<br/>This may take 10–60 seconds.</div>
+          </div>
+
+          <!-- Results -->
+          <div class="hidden" id="results-content">
+            <!-- Score gauge -->
+            <div class="score-gauge-wrap">
+              <p class="result-applicant" id="result-applicant-name">—</p>
+              <p class="result-position" id="result-position-name">—</p>
+
+              <div class="score-gauge" id="score-gauge">
+                <svg viewBox="0 0 140 140" width="140" height="140">
+                  <circle class="gauge-track" cx="70" cy="70" r="56"/>
+                  <circle class="gauge-fill" id="gauge-fill" cx="70" cy="70" r="56"
+                    stroke-dasharray="351.86"
+                    stroke-dashoffset="351.86"
+                    stroke="var(--brand-accent)"
+                  />
+                </svg>
+                <div class="score-number">
+                  <span class="score-value" id="score-value">0</span>
+                  <span class="score-label">/ 100</span>
+                </div>
+              </div>
+
+              <div class="score-band-label" id="score-band-label">—</div>
+            </div>
+
+            <div class="result-divider"></div>
+
+            <!-- Summary -->
+            <div class="result-section-label">AI Rationale</div>
+            <p class="result-summary" id="result-summary">—</p>
+
+            <div class="result-divider"></div>
+
+            <!-- Criteria breakdown -->
+            <div class="result-section-label">Criteria Breakdown</div>
+            <div class="criteria-breakdown" id="criteria-breakdown"></div>
+
+            <div style="margin-top:1.25rem">
+              <button class="btn btn-secondary full-width" onclick="resetEvaluation()">↩ Evaluate Another</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- PROFILES TAB                                   -->
+    <!-- ══════════════════════════════════════════════ -->
+    <div class="tab-panel" id="panel-profiles">
+      <div class="page-header">
+        <h1 class="page-title">Position Profiles</h1>
+        <p class="page-subtitle">Create and configure weighted evaluation criteria for each position. Profiles are saved locally and available in the Evaluate tab.</p>
+      </div>
+
+      <div class="profiles-layout">
+
+        <!-- Sidebar: list -->
+        <div>
+          <div class="profiles-list" id="profiles-list">
+            <!-- Populated by JS -->
+          </div>
+          <button class="new-profile-btn" style="margin-top:0.75rem" onclick="newProfile()">
+            ＋ New Profile
+          </button>
+        </div>
+
+        <!-- Editor -->
+        <div class="card profile-editor" id="profile-editor-card">
+          <!-- Empty state -->
+          <div class="editor-empty" id="editor-empty">
+            <div class="editor-empty-icon">📁</div>
+            <div class="text-muted">Select a profile to edit, or create a new one.</div>
+          </div>
+
+          <!-- Editor form -->
+          <div id="editor-form" class="hidden">
+            <h2 class="section-title" id="editor-form-title">Edit Profile</h2>
+
+            <div class="form-group">
+              <label class="form-label" for="editor-name">Position Name <span class="required">*</span></label>
+              <input class="form-input" type="text" id="editor-name" placeholder="e.g. Parks &amp; Recreation Intern" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="editor-description">Short Description</label>
+              <input class="form-input" type="text" id="editor-description" placeholder="One-line description of the position" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="editor-job-description">Job Description <span class="required">*</span></label>
+              <textarea class="form-textarea" id="editor-job-description" placeholder="Full job description or position summary…" style="min-height:100px"></textarea>
+            </div>
+
+            <div class="model-row">
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label" for="editor-model">Ollama Model</label>
+                <input class="form-input" type="text" id="editor-model" placeholder="e.g. gemma3:1b" />
+              </div>
+              <div style="padding-bottom:2px">
+                <button class="btn btn-secondary btn-sm" onclick="fetchAvailableModels()">Refresh</button>
+              </div>
+            </div>
+            <div class="text-muted" id="available-models-hint" style="margin-top:-0.75rem; margin-bottom:1rem; font-size:0.75rem"></div>
+
+            <div class="form-group">
+              <label class="form-label">Evaluation Criteria</label>
+              <p class="text-muted" style="margin-bottom:0.75rem; font-size:0.78rem">Add weighted traits the AI should look for. Weight 1 = minor, 10 = critical.</p>
+              <div class="criteria-builder" id="criteria-builder"></div>
+              <button class="add-criterion-btn" onclick="addCriterion()">＋ Add Criterion</button>
+            </div>
+
+            <div class="editor-actions">
+              <button class="btn btn-danger btn-sm" id="delete-profile-btn" onclick="confirmDeleteProfile()">🗑 Delete</button>
+              <div style="flex:1"></div>
+              <button class="btn btn-secondary" onclick="cancelEdit()">Cancel</button>
+              <button class="btn btn-primary" onclick="saveProfile()">💾 Save Profile</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ── Profile Info Modal ──────────────────────────── -->
+<div class="modal-backdrop hidden" id="profile-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modal-profile-name">Position Profile</h2>
+      <p class="modal-subtitle" id="modal-profile-desc"></p>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Job Description</label>
+        <p id="modal-job-description" style="font-size:0.875rem; line-height:1.7; color:var(--deep-ink)"></p>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Criteria</label>
+        <div id="modal-criteria-list" style="display:flex; flex-direction:column; gap:0.5rem;"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeProfileModal()">Close</button>
+        <button class="btn btn-primary" onclick="switchTab('profiles'); closeProfileModal()">✏️ Edit Profile</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Delete Confirm Modal ────────────────────────── -->
+<div class="modal-backdrop hidden" id="delete-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title">Delete Profile?</h2>
+    </div>
+    <div class="modal-body">
+      <p class="modal-subtitle" id="delete-modal-text">This will permanently remove this position profile.</p>
+    </div>
+    <div class="modal-footer">
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="document.getElementById('delete-modal').classList.add('hidden')">Cancel</button>
+        <button class="btn btn-danger" onclick="executeDeleteProfile()">🗑 Delete Permanently</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Toast container ─────────────────────────────── -->
+<div class="toast-container" id="toast-container"></div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

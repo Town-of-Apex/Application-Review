@@ -1,0 +1,39 @@
+{
+  "id": "bd2ae4f8-b8df-4c0e-8109-d591e3df60c9",
+  "name": "Parks & Recreation Intern",
+  "description": "Summer internship supporting parks programming and community events.",
+  "job_description": "The Parks & Recreation Intern will assist with planning and executing summer programs, maintaining event calendars, supporting community engagement initiatives, and performing general administrative tasks. The ideal candidate is enthusiastic about public service, comfortable working outdoors, and has strong communication skills.",
+  "criteria": [
+    {
+      "id": "5211f174-0957-44f7-b532-4f59c1dd895a",
+      "name": "Related Field of Study",
+      "description": "Studying parks management, recreation, public administration, environmental science, or a closely related field.",
+      "weight": 7
+    },
+    {
+      "id": "beeb2339-a857-4658-a3f1-2d19b10e1829",
+      "name": "Community Engagement Experience",
+      "description": "Prior experience with community outreach, event planning, or volunteer coordination.",
+      "weight": 8
+    },
+    {
+      "id": "76041c26-2d29-4fce-80e6-c4fc0a8ca83d",
+      "name": "Communication Skills",
+      "description": "Demonstrates strong written and verbal communication skills in application materials.",
+      "weight": 6
+    },
+    {
+      "id": "9ebc967f-6956-4a2d-932b-a423cf752d8d",
+      "name": "Outdoor/Physical Work Comfort",
+      "description": "Comfortable working outdoors and performing light physical tasks.",
+      "weight": 5
+    },
+    {
+      "id": "50e1074a-5875-4637-8ec7-6336c338a0e9",
+      "name": "Availability & Commitment",
+      "description": "Available for the full internship duration with consistent weekly hours.",
+      "weight": 7
+    }
+  ],
+  "ollama_model": "gemma3:1b"
+}
