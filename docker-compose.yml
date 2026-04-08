@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  app-review:
+    build: .
+    container_name: app-review-web
+    ports:
+      - "8000:8000"
+    environment:
+      # Connects to the host server's local Ollama instance on 11434
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+    volumes:
+      # Mount the profiles data to persist across container restarts
+      - ./data:/app/data
+    extra_hosts:
+      # Ensure host.docker.internal works correctly to map to host localhost on Linux servers
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped

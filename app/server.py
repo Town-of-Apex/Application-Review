@@ -108,10 +108,14 @@ async def evaluate(
 
 @app.get("/api/ollama-status")
 async def ollama_status():
+    import os
     import httpx
+    
+    ollama_base = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+    
     try:
         async with httpx.AsyncClient(timeout=4.0) as client:
-            r = await client.get("http://localhost:11434/api/tags")
+            r = await client.get(f"{ollama_base}/api/tags")
             r.raise_for_status()
             tags = r.json()
             models = [m["name"] for m in tags.get("models", [])]

@@ -48,97 +48,100 @@
         <p class="page-subtitle">Select a position profile, paste the application content and resume, then let the AI generate an alignment score for human review.</p>
       </div>
 
-      <div class="evaluate-layout">
+      <div class="batch-layout">
 
-        <!-- Left: Form -->
-        <div class="card">
-          <h2 class="section-title">📌 Position &amp; Applicant</h2>
-
-          <div class="profile-selector-row">
-            <div class="form-group" style="margin-bottom:0">
-              <label class="form-label" for="eval-profile-select">Position Profile <span class="required">*</span></label>
-              <select class="form-select" id="eval-profile-select" onchange="onProfileSelected()">
+        <!-- Left: Queue Sidebar -->
+        <div class="card" style="padding: 1.5rem;">
+          <h2 class="section-title" style="margin-bottom: 1rem; font-size:1.1rem; padding-bottom: 0.5rem;">📥 Batch Queue</h2>
+          
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label class="form-label" for="eval-profile-select">Position Profile <span class="required">*</span></label>
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+              <select class="form-select" id="eval-profile-select" onchange="onProfileSelected()" style="flex:1;">
                 <option value="">— Select a position —</option>
               </select>
+              <button class="profile-info-pill" id="profile-info-pill" title="View profile details" onclick="showProfileModal()" style="display:none; padding: 0.5rem;">
+                ℹ️
+              </button>
             </div>
-            <button class="profile-info-pill" id="profile-info-pill" title="View profile details" onclick="showProfileModal()" style="display:none">
-              ℹ️ Profile Details
+          </div>
+
+          <div class="batch-queue" id="batch-queue-list">
+            <!-- Populated by JS -->
+          </div>
+
+          <button class="new-profile-btn" style="margin-top: 1rem; padding: 0.6rem;" onclick="addApplicantToBatch()">
+            ＋ Add Applicant
+          </button>
+
+          <div class="batch-run-container">
+            <button class="btn btn-primary full-width" id="batch-run-btn" onclick="startBatchEvaluation()" disabled>
+              ▶️ Run Batch Evaluation
             </button>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="eval-applicant-name">Applicant Name <span class="required">*</span></label>
-            <input class="form-input" type="text" id="eval-applicant-name" placeholder="e.g. Jane Smith" autocomplete="off" />
-          </div>
-
-          <h2 class="section-title" style="margin-top:1.5rem">📝 Application Content</h2>
-
-          <div class="form-group">
-            <label class="form-label" for="eval-application-text">Application Form Responses</label>
-            <textarea
-              class="form-textarea"
-              id="eval-application-text"
-              placeholder="Paste the applicant's form responses here — answers to short-answer questions, dates, yes/no responses, etc."
-              style="min-height:160px"
-            ></textarea>
-          </div>
-
-          <h2 class="section-title" style="margin-top:1rem">📄 Resume / CV</h2>
-
-          <div class="resume-tabs" id="resume-tabs">
-            <button class="resume-tab-btn active" id="resume-tab-upload" onclick="switchResumeTab('upload')">📎 Upload PDF</button>
-            <button class="resume-tab-btn" id="resume-tab-text" onclick="switchResumeTab('text')">✏️ Paste Text</button>
-          </div>
-
-          <!-- PDF Upload -->
-          <div id="resume-upload-panel">
-            <div class="upload-zone" id="upload-zone">
-              <input type="file" id="resume-file-input" accept=".pdf,.txt" onchange="onResumeFileSelected(this)" />
-              <div class="upload-icon">📂</div>
-              <div class="upload-label"><strong>Click to choose</strong> or drag &amp; drop</div>
-              <div class="upload-label" style="font-size:0.75rem; margin-top:0.2rem">PDF or plain text · resume/CV only</div>
-              <div class="upload-filename hidden" id="upload-filename"></div>
-            </div>
-          </div>
-
-          <!-- Text paste -->
-          <div id="resume-text-panel" class="hidden">
-            <div class="form-group" style="margin-bottom:0">
-              <textarea
-                class="form-textarea"
-                id="eval-resume-text"
-                placeholder="Paste the resume text here…"
-                style="min-height:180px; font-family: 'Courier New', monospace; font-size:0.82rem"
-              ></textarea>
-            </div>
-          </div>
-
-          <div style="margin-top:1.75rem; display:flex; justify-content:flex-end;">
-            <button class="btn btn-primary btn-lg" id="evaluate-btn" onclick="submitEvaluation()">
-              ✨ Generate Score
+            <button class="btn btn-secondary full-width" id="batch-export-btn" onclick="exportEvaluations()" style="margin-top: 0.5rem;" disabled>
+              📥 Export Results
             </button>
           </div>
         </div>
 
-        <!-- Right: Results -->
-        <div class="card results-panel" id="results-panel">
-          <h2 class="section-title">📊 Alignment Score</h2>
-
-          <!-- Empty state -->
-          <div class="results-empty" id="results-empty">
-            <div class="results-empty-icon">🤖</div>
-            <div class="results-empty-text">Fill in the form and click <strong>Generate Score</strong> to see the AI evaluation here.</div>
+        <!-- Right: Detail View (Form or Results) -->
+        <div class="card" id="detail-view" style="position: relative;">
+          <!-- Empty State -->
+          <div class="editor-empty" id="detail-empty">
+            <div class="editor-empty-icon">👈</div>
+            <div class="text-muted">Select an applicant from the queue or add a new one to edit.</div>
           </div>
 
-          <!-- Evaluating state -->
+          <!-- Form View -->
+          <div id="detail-form" class="hidden">
+            <h2 class="section-title">📌 Applicant Details</h2>
+
+            <div class="form-group">
+              <label class="form-label" for="eval-applicant-name">Applicant Name <span class="required">*</span></label>
+              <input class="form-input" type="text" id="eval-applicant-name" placeholder="e.g. Jane Smith" autocomplete="off" oninput="updateCurrentApplicant('name', this.value)" />
+            </div>
+
+            <h2 class="section-title" style="margin-top:1.5rem">📝 Application Content</h2>
+            <div class="form-group">
+              <label class="form-label" for="eval-application-text">Application Form Responses</label>
+              <textarea class="form-textarea" id="eval-application-text" placeholder="Paste form responses here…" style="min-height:120px" oninput="updateCurrentApplicant('application_text', this.value)"></textarea>
+            </div>
+
+            <h2 class="section-title" style="margin-top:1rem">📄 Resume / CV</h2>
+            <div class="resume-tabs" id="resume-tabs">
+              <button class="resume-tab-btn active" id="resume-tab-upload" onclick="switchResumeTab('upload')">📎 Upload PDF</button>
+              <button class="resume-tab-btn" id="resume-tab-text" onclick="switchResumeTab('text')">✏️ Paste Text</button>
+            </div>
+
+            <div id="resume-upload-panel">
+              <div class="upload-zone" id="upload-zone">
+                <input type="file" id="resume-file-input" accept=".pdf,.txt" onchange="onResumeFileSelected(this)" />
+                <div class="upload-icon">📂</div>
+                <div class="upload-label"><strong>Click to choose</strong> or drag &amp; drop</div>
+                <div class="upload-filename hidden" id="upload-filename"></div>
+              </div>
+            </div>
+
+            <div id="resume-text-panel" class="hidden">
+              <div class="form-group" style="margin-bottom:0">
+                <textarea class="form-textarea" id="eval-resume-text" placeholder="Paste the resume text here…" style="min-height:140px; font-family: 'Courier New', monospace; font-size:0.82rem" oninput="updateCurrentApplicant('resume_text', this.value)"></textarea>
+              </div>
+            </div>
+            
+            <div style="margin-top:2rem">
+              <button class="btn btn-danger btn-sm" onclick="removeCurrentApplicant()">🗑 Remove Applicant</button>
+            </div>
+          </div>
+
+          <!-- Evaluating State -->
           <div class="results-empty hidden" id="results-loading">
             <div class="results-empty-icon" style="animation: pulse 1.5s ease-in-out infinite">⚙️</div>
             <div class="results-empty-text"><strong>Evaluating…</strong><br/>The AI is reading the application.<br/>This may take 10–60 seconds.</div>
           </div>
 
-          <!-- Results -->
+          <!-- Results View -->
           <div class="hidden" id="results-content">
-            <!-- Score gauge -->
+            <h2 class="section-title">📊 Alignment Score</h2>
             <div class="score-gauge-wrap">
               <p class="result-applicant" id="result-applicant-name">—</p>
               <p class="result-position" id="result-position-name">—</p>
@@ -157,24 +160,19 @@
                   <span class="score-label">/ 100</span>
                 </div>
               </div>
-
               <div class="score-band-label" id="score-band-label">—</div>
             </div>
 
             <div class="result-divider"></div>
-
-            <!-- Summary -->
             <div class="result-section-label">AI Rationale</div>
             <p class="result-summary" id="result-summary">—</p>
 
             <div class="result-divider"></div>
-
-            <!-- Criteria breakdown -->
             <div class="result-section-label">Criteria Breakdown</div>
             <div class="criteria-breakdown" id="criteria-breakdown"></div>
-
-            <div style="margin-top:1.25rem">
-              <button class="btn btn-secondary full-width" onclick="resetEvaluation()">↩ Evaluate Another</button>
+            
+            <div style="margin-top:1.5rem">
+              <button class="btn btn-secondary full-width" onclick="reevaluateCurrentApplicant()">🔄 Re-evaluate Applicant</button>
             </div>
           </div>
         </div>

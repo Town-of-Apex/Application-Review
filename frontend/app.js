@@ -12,6 +12,7 @@ let resumeMode = 'upload';     // 'upload' | 'text'
 document.addEventListener('DOMContentLoaded', async () => {
   await loadProfiles();
   checkOllamaStatus();
+  initBatch();
   setupDragDrop();
 });
 
@@ -70,34 +71,182 @@ function rebuildProfileSelect() {
   if (cur) sel.value = cur;
 }
 
-// ── Evaluate Tab ──────────────────────────────────────────────
+// ── Evaluate Tab (Batch) ──────────────────────────────────────
+let batchApplicants = [];
+let currentApplicantId = null;
+let isBatchRunning = false;
+
+function initBatch() {
+  if (batchApplicants.length === 0) {
+    addApplicantToBatch();
+  }
+}
+
+function addApplicantToBatch() {
+  const id = crypto.randomUUID();
+  batchApplicants.push({
+    id,
+    name: '',
+    application_text: '',
+    resume_mode: 'upload', // 'upload' | 'text'
+    resume_text: '',
+    resume_file: null,
+    status: 'pending', // 'pending', 'evaluating', 'done', 'error'
+    result: null
+  });
+  selectApplicant(id);
+}
+
+function selectApplicant(id) {
+  currentApplicantId = id;
+  renderBatchQueue();
+  renderDetailView();
+}
+
+function removeCurrentApplicant() {
+  if (!currentApplicantId) return;
+  removeApplicant(currentApplicantId);
+}
+
+function removeApplicant(id) {
+  batchApplicants = batchApplicants.filter(a => a.id !== id);
+  if (currentApplicantId === id) {
+    currentApplicantId = batchApplicants.length > 0 ? batchApplicants[0].id : null;
+  }
+  renderBatchQueue();
+  renderDetailView();
+}
+
+function updateCurrentApplicant(field, value) {
+  const app = batchApplicants.find(a => a.id === currentApplicantId);
+  if (!app) return;
+  app[field] = value;
+  
+  if (field === 'name') {
+    renderBatchQueue();
+  }
+  updateBatchRunBtn();
+}
+
+function renderBatchQueue() {
+  const list = document.getElementById('batch-queue-list');
+  list.innerHTML = '';
+  
+  batchApplicants.forEach((app, index) => {
+    const item = document.createElement('div');
+    item.className = `batch-applicant-item ${app.id === currentApplicantId ? 'active' : ''}`;
+    item.onclick = () => {
+      if (!isBatchRunning || app.status !== 'evaluating') {
+        selectApplicant(app.id);
+      }
+    };
+    
+    let statusIcon = '⏳';
+    let statusText = 'Pending';
+    if (app.status === 'evaluating') { statusIcon = '⚙️'; statusText = 'Evaluating...'; }
+    if (app.status === 'done') { statusIcon = '✅'; statusText = 'Complete'; }
+    if (app.status === 'error') { statusIcon = '❌'; statusText = 'Error'; }
+
+    item.innerHTML = `
+      <div class="batch-applicant-info">
+        <div class="batch-applicant-name">${escHtml(app.name || `Applicant ${index + 1}`)}</div>
+        <div class="batch-applicant-status">${statusIcon} ${statusText}</div>
+      </div>
+      <button class="batch-remove-btn" onclick="event.stopPropagation(); removeApplicant('${app.id}')" title="Remove">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+      </button>
+    `;
+    list.appendChild(item);
+  });
+  
+  updateBatchRunBtn();
+}
+
+function renderDetailView() {
+  const app = batchApplicants.find(a => a.id === currentApplicantId);
+  
+  toggle('detail-empty', !app);
+  toggle('detail-form', false);
+  toggle('results-loading', false);
+  toggle('results-content', false);
+  
+  if (!app) return;
+  
+  if (app.status === 'evaluating') {
+    toggle('results-loading', true);
+  } else if (app.status === 'done') {
+    renderResults(app.result);
+  } else {
+    // Form view
+    toggle('detail-form', true);
+    document.getElementById('eval-applicant-name').value = app.name || '';
+    document.getElementById('eval-application-text').value = app.application_text || '';
+    document.getElementById('eval-resume-text').value = app.resume_text || '';
+    
+    // Sync tabs
+    document.getElementById('resume-tab-upload').classList.toggle('active', app.resume_mode === 'upload');
+    document.getElementById('resume-tab-text').classList.toggle('active', app.resume_mode === 'text');
+    toggle('resume-upload-panel', app.resume_mode === 'upload');
+    toggle('resume-text-panel', app.resume_mode === 'text');
+    
+    const fnEl = document.getElementById('upload-filename');
+    if (app.resume_file) {
+      fnEl.textContent = `📎 ${app.resume_file.name} (${(app.resume_file.size / 1024).toFixed(0)} KB)`;
+      fnEl.classList.remove('hidden');
+      document.querySelector('.upload-label').style.display = 'none';
+      document.querySelector('.upload-icon').textContent = '✅';
+    } else {
+      fnEl.classList.add('hidden');
+      document.querySelector('.upload-label').style.display = '';
+      document.querySelector('.upload-icon').textContent = '📂';
+      document.getElementById('resume-file-input').value = '';
+    }
+  }
+}
+
+function updateBatchRunBtn() {
+  const btn = document.getElementById('batch-run-btn');
+  const exportBtn = document.getElementById('batch-export-btn');
+  const profileId = document.getElementById('eval-profile-select').value;
+  
+  const hasPending = batchApplicants.some(a => a.status === 'pending' || a.status === 'error');
+  const allNamesPresent = batchApplicants.every(a => a.name.trim() !== '');
+  
+  btn.disabled = !profileId || !hasPending || !allNamesPresent || isBatchRunning || batchApplicants.length === 0;
+
+  if (exportBtn) {
+    const hasEvaluated = batchApplicants.some(a => a.status === 'done');
+    exportBtn.disabled = !hasEvaluated;
+  }
+}
+
 function onProfileSelected() {
-  const id   = document.getElementById('eval-profile-select').value;
+  const id = document.getElementById('eval-profile-select').value;
   const pill = document.getElementById('profile-info-pill');
-  pill.style.display = id ? 'inline-flex' : 'none';
+  if (pill) pill.style.display = id ? 'inline-flex' : 'none';
+  updateBatchRunBtn();
 }
 
 function switchResumeTab(mode) {
-  resumeMode = mode;
-  document.getElementById('resume-tab-upload').classList.toggle('active', mode === 'upload');
-  document.getElementById('resume-tab-text').classList.toggle('active', mode === 'text');
-  toggle('resume-upload-panel', mode === 'upload');
-  toggle('resume-text-panel',   mode === 'text');
+  const app = batchApplicants.find(a => a.id === currentApplicantId);
+  if (!app) return;
+  app.resume_mode = mode;
+  renderDetailView();
 }
 
 function onResumeFileSelected(input) {
   const file = input.files[0];
   if (!file) return;
-  selectedResumeFile = file;
-  const fnEl = document.getElementById('upload-filename');
-  fnEl.textContent = `📎 ${file.name} (${(file.size / 1024).toFixed(0)} KB)`;
-  fnEl.classList.remove('hidden');
-  document.querySelector('.upload-label').style.display = 'none';
-  document.querySelector('.upload-icon').textContent = '✅';
+  const app = batchApplicants.find(a => a.id === currentApplicantId);
+  if (app) {
+    app.resume_file = file;
+    renderDetailView();
+  }
 }
 
 function setupDragDrop() {
   const zone = document.getElementById('upload-zone');
+  if (!zone) return;
   zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
   zone.addEventListener('dragleave', ()      => zone.classList.remove('drag-over'));
   zone.addEventListener('drop', e => {
@@ -111,54 +260,69 @@ function setupDragDrop() {
   });
 }
 
-async function submitEvaluation() {
-  const profileId     = document.getElementById('eval-profile-select').value;
-  const applicantName = document.getElementById('eval-applicant-name').value.trim();
-  const appText       = document.getElementById('eval-application-text').value.trim();
-  const resumeText    = document.getElementById('eval-resume-text').value.trim();
+async function startBatchEvaluation() {
+  const profileId = document.getElementById('eval-profile-select').value;
+  if (!profileId) return;
 
-  if (!profileId)     { showToast('Please select a position profile.', 'error'); return; }
-  if (!applicantName) { showToast('Please enter the applicant\'s name.', 'error'); return; }
-  if (resumeMode === 'upload' && !selectedResumeFile && !resumeText) {
-    showToast('Please upload a resume file or switch to "Paste Text".', 'error'); return;
-  }
+  const pendingApps = batchApplicants.filter(a => a.status === 'pending' || a.status === 'error');
+  if (pendingApps.length === 0) return;
 
-  const btn = document.getElementById('evaluate-btn');
+  isBatchRunning = true;
+  document.getElementById('eval-profile-select').disabled = true;
+  const btn = document.getElementById('batch-run-btn');
   btn.classList.add('btn-loading');
-  btn.disabled = true;
+  updateBatchRunBtn();
 
-  toggle('results-empty',   false);
-  toggle('results-loading', true);
-  toggle('results-content', false);
-
-  const form = new FormData();
-  form.append('profile_id',       profileId);
-  form.append('applicant_name',   applicantName);
-  form.append('application_text', appText);
-  form.append('resume_text',      resumeMode === 'text' ? resumeText : '');
-
-  if (resumeMode === 'upload' && selectedResumeFile) {
-    form.append('resume_file', selectedResumeFile);
-  }
-
-  try {
-    const res  = await fetch('/api/evaluate', { method: 'POST', body: form });
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data.detail || 'Evaluation failed.');
+  for (const app of pendingApps) {
+    if (!app.application_text.trim() && !app.resume_text.trim() && !app.resume_file) {
+      app.status = 'error';
+      showToast(`Missing all information for ${app.name}`, 'error');
+      continue;
     }
 
-    renderResults(data);
-    showToast('Evaluation complete!', 'success');
-  } catch (e) {
-    toggle('results-empty',   true);
-    toggle('results-loading', false);
-    showToast(e.message || 'Evaluation error.', 'error');
-  } finally {
-    btn.classList.remove('btn-loading');
-    btn.disabled = false;
+    app.status = 'evaluating';
+    if (currentApplicantId === app.id) renderDetailView();
+    renderBatchQueue();
+
+    const form = new FormData();
+    form.append('profile_id', profileId);
+    form.append('applicant_name', app.name.trim());
+    form.append('application_text', app.application_text.trim());
+    form.append('resume_text', app.resume_mode === 'text' ? app.resume_text.trim() : '');
+
+    if (app.resume_mode === 'upload' && app.resume_file) {
+      form.append('resume_file', app.resume_file);
+    }
+
+    try {
+      const res = await fetch('/api/evaluate', { method: 'POST', body: form });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Evaluation failed.');
+      app.status = 'done';
+      app.result = data;
+    } catch (e) {
+      app.status = 'error';
+      showToast(`Error evaluating ${app.name}: ${e.message}`, 'error');
+    }
+
+    if (currentApplicantId === app.id) renderDetailView();
+    renderBatchQueue();
   }
+
+  isBatchRunning = false;
+  document.getElementById('eval-profile-select').disabled = false;
+  btn.classList.remove('btn-loading');
+  updateBatchRunBtn();
+  showToast('Batch evaluation complete!', 'success');
+}
+
+function reevaluateCurrentApplicant() {
+  const app = batchApplicants.find(a => a.id === currentApplicantId);
+  if (!app) return;
+  app.status = 'pending';
+  app.result = null;
+  renderDetailView();
+  renderBatchQueue();
 }
 
 function renderResults(data) {
@@ -242,19 +406,6 @@ function animateScore(target) {
     numEl.textContent = current;
     if (current >= target) clearInterval(timer);
   }, 25);
-}
-
-function resetEvaluation() {
-  toggle('results-content', false);
-  toggle('results-empty',   true);
-  document.getElementById('eval-applicant-name').value  = '';
-  document.getElementById('eval-application-text').value = '';
-  document.getElementById('eval-resume-text').value      = '';
-  document.getElementById('resume-file-input').value     = '';
-  document.getElementById('upload-filename').classList.add('hidden');
-  document.querySelector('.upload-icon').textContent = '📂';
-  document.querySelector('.upload-label').style.display = '';
-  selectedResumeFile = null;
 }
 
 // ── Profile Info Modal ────────────────────────────────────────
@@ -517,4 +668,81 @@ function escHtml(str) {
 
 function escAttr(str) {
   return String(str || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function exportEvaluations() {
+  const doneApps = batchApplicants.filter(a => a.status === 'done');
+  if (doneApps.length === 0) return;
+
+  const profileSel = document.getElementById('eval-profile-select');
+  const profileName = profileSel.options[profileSel.selectedIndex].text;
+
+  let htmlContent = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <title>Evaluation Report - ${escHtml(profileName)}</title>
+      <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f7f9f8; color: #1f2a2e; padding: 2rem; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 3rem; }
+        .header h1 { margin: 0; font-size: 2rem; color: #1f2a2e; }
+        .header p { color: #5c6b73; margin-top: 0.5rem; }
+        .card { background: #fff; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e2e8e5; }
+        .card-header { display: flex; justify-content: space-between; align-items: start; border-bottom: 1px solid #e2e8e5; padding-bottom: 1rem; margin-bottom: 1rem; }
+        .applicant-name { font-size: 1.3rem; font-weight: 600; margin: 0; }
+        .score-wrap { text-align: right; }
+        .score-val { font-size: 1.8rem; font-weight: 700; line-height: 1; }
+        .score-label { font-size: 0.8rem; color: #5c6b73; font-weight: 600; text-transform: uppercase; }
+        .ai-rationale { font-size: 0.95rem; line-height: 1.6; color: #1f2a2e; }
+        .section-label { font-size: 0.8rem; color: #5c6b73; font-weight: 600; text-transform: uppercase; margin-bottom: 0.5rem; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>Batch Evaluation Report</h1>
+          <p>Position: <strong>${escHtml(profileName)}</strong></p>
+        </div>
+  `;
+
+  doneApps.forEach(app => {
+    let color = '#2f6f5e';
+    if (app.result.score < 40) color = '#d94f3c';
+    else if (app.result.score < 70) color = '#f2a65a';
+    else if (app.result.score < 85) color = '#5da9e9';
+
+    htmlContent += `
+        <div class="card">
+          <div class="card-header">
+            <h2 class="applicant-name">${escHtml(app.name)}</h2>
+            <div class="score-wrap">
+              <div class="score-val" style="color: ${color}">${app.result.score}</div>
+              <div class="score-label">/ 100</div>
+            </div>
+          </div>
+          <div>
+            <div class="section-label">AI Rationale</div>
+            <div class="ai-rationale">${escHtml(app.result.summary)}</div>
+          </div>
+        </div>
+    `;
+  });
+
+  htmlContent += `
+      </div>
+    </body>
+    </html>
+  `;
+
+  const blob = new Blob([htmlContent], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `Batch_Report_${profileName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.html`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }

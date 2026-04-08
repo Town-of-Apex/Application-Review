@@ -1,9 +1,11 @@
 import json
 import re
 import httpx
+import os
 from app.models import PositionProfile, EvaluationResult
 
-OLLAMA_URL = "http://localhost:11434/api/generate"
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+OLLAMA_URL = f"{OLLAMA_BASE_URL}/api/generate"
 REQUEST_TIMEOUT = 120.0
 
 
@@ -112,7 +114,7 @@ async def evaluate_application(
             raw_text = body.get("response", "")
     except httpx.ConnectError:
         raise ConnectionError(
-            "Could not connect to Ollama at localhost:11434. "
+            f"Could not connect to Ollama at {OLLAMA_BASE_URL}. "
             "Make sure Ollama is running (run: ollama serve)."
         )
     except httpx.TimeoutException:

@@ -988,3 +988,72 @@ body {
 .gap-3 { gap: 0.75rem; }
 .text-muted { color: var(--muted-slate); font-size: 0.85rem; }
 .full-width { width: 100%; }
+
+/* ── Batch Evaluate Layout ────────────────────────────────── */
+.batch-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .batch-layout { grid-template-columns: 1fr; }
+}
+
+.batch-queue {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.batch-applicant-item {
+  padding: 0.8rem 1rem;
+  border-radius: 14px;
+  border: 1.5px solid var(--line-gray);
+  background: #fff;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.batch-applicant-item:hover {
+  border-color: var(--brand-accent);
+  box-shadow: var(--shadow-soft);
+  transform: translateY(-1px);
+}
+
+.batch-applicant-item.active {
+  border-color: var(--brand-accent);
+  background: var(--brand-accent-dim);
+}
+
+.batch-applicant-info { display: flex; flex-direction: column; gap: 0.1rem; }
+.batch-applicant-name { font-weight: 600; font-size: 0.9rem; color: var(--deep-ink); }
+.batch-applicant-status { font-size: 0.75rem; color: var(--muted-slate); }
+
+.batch-run-container {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line-gray);
+}
+
+.batch-remove-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted-slate);
+  cursor: pointer;
+  padding: 0.4rem;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.batch-remove-btn:hover {
+  background: rgba(242,100,80,0.1);
+  color: #d94f3c;
+}
