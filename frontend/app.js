@@ -141,19 +141,28 @@ function renderBatchQueue() {
       }
     };
     
-    let statusIcon = '⏳';
+    let statusIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="status-pending"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>';
     let statusText = 'Pending';
-    if (app.status === 'evaluating') { statusIcon = '⚙️'; statusText = 'Evaluating...'; }
-    if (app.status === 'done') { statusIcon = '✅'; statusText = 'Complete'; }
-    if (app.status === 'error') { statusIcon = '❌'; statusText = 'Error'; }
+    if (app.status === 'evaluating') { 
+      statusIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="status-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>'; 
+      statusText = 'Evaluating...'; 
+    }
+    if (app.status === 'done') { 
+      statusIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="status-done"><polyline points="20 6 9 17 4 12"></polyline></svg>'; 
+      statusText = 'Complete'; 
+    }
+    if (app.status === 'error') { 
+      statusIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="status-error"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>'; 
+      statusText = 'Error'; 
+    }
 
     item.innerHTML = `
       <div class="batch-applicant-info">
         <div class="batch-applicant-name">${escHtml(app.name || `Applicant ${index + 1}`)}</div>
-        <div class="batch-applicant-status">${statusIcon} ${statusText}</div>
+        <div class="batch-applicant-status">${statusIcon}<span>${statusText}</span></div>
       </div>
       <button class="batch-remove-btn" onclick="event.stopPropagation(); removeApplicant('${app.id}')" title="Remove">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
       </button>
     `;
     list.appendChild(item);
@@ -190,15 +199,16 @@ function renderDetailView() {
     toggle('resume-text-panel', app.resume_mode === 'text');
     
     const fnEl = document.getElementById('upload-filename');
+    const uli  = document.querySelector('.upload-icon');
     if (app.resume_file) {
-      fnEl.textContent = `📎 ${app.resume_file.name} (${(app.resume_file.size / 1024).toFixed(0)} KB)`;
+      fnEl.textContent = `${app.resume_file.name} (${(app.resume_file.size / 1024).toFixed(0)} KB)`;
       fnEl.classList.remove('hidden');
       document.querySelector('.upload-label').style.display = 'none';
-      document.querySelector('.upload-icon').textContent = '✅';
+      uli.innerHTML = '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#005a70" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
     } else {
       fnEl.classList.add('hidden');
       document.querySelector('.upload-label').style.display = '';
-      document.querySelector('.upload-icon').textContent = '📂';
+      uli.innerHTML = '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>';
       document.getElementById('resume-file-input').value = '';
     }
   }
@@ -388,10 +398,10 @@ function animateScore(target) {
 
   // Color by band
   let color;
-  if (target < 40)      color = '#d94f3c';
-  else if (target < 70) color = 'var(--warm-signal)';
-  else if (target < 85) color = 'var(--cool-insight)';
-  else                  color = 'var(--brand-accent)';
+  if (target < 40)      color = '#b91c1c';
+  else if (target < 70) color = '#b45309';
+  else if (target < 85) color = '#0369a1';
+  else                  color = 'var(--brand-teal)';
 
   fill.style.stroke = color;
 
@@ -419,10 +429,10 @@ function showProfileModal() {
   document.getElementById('modal-job-description').textContent = profile.job_description;
 
   const list = document.getElementById('modal-criteria-list');
-  list.innerHTML = (profile.criteria || []).map(c => `
-    <div style="padding:0.6rem 0.75rem; border-radius:10px; border:1px solid var(--line-gray); background:var(--soft-canvas)">
-      <div style="font-weight:600; font-size:0.85rem">${escHtml(c.name)} <span style="color:var(--brand-accent); font-size:0.75rem; font-weight:700">[${c.weight}/10]</span></div>
-      <div style="color:var(--muted-slate); font-size:0.78rem; margin-top:0.2rem">${escHtml(c.description)}</div>
+    list.innerHTML = (profile.criteria || []).map(c => `
+    <div style="padding:0.75rem 1rem; border-radius:8px; border:1px solid var(--line-gray); background:var(--bg-inner)">
+      <div style="font-weight:600; font-size:0.875rem; color:var(--brand-teal)">${escHtml(c.name)} <span style="font-size:0.75rem; font-weight:700">[${c.weight}/10]</span></div>
+      <div style="color:var(--text-muted); font-size:0.8125rem; margin-top:0.25rem">${escHtml(c.description)}</div>
     </div>
   `).join('');
 
@@ -642,8 +652,12 @@ function showToast(message, type = 'info') {
   const container = document.getElementById('toast-container');
   const toast     = document.createElement('div');
   toast.className = `toast toast-${type}`;
-  const icon = type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ';
-  toast.innerHTML = `<span>${icon}</span><span>${escHtml(message)}</span>`;
+  let icon = '';
+  if (type === 'success') icon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+  else if (type === 'error') icon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+  else icon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>';
+  
+  toast.innerHTML = `<div class="toast-icon">${icon}</div><div class="toast-message">${escHtml(message)}</div>`;
   container.appendChild(toast);
   setTimeout(() => {
     toast.classList.add('fadeout');
@@ -684,12 +698,12 @@ function exportEvaluations() {
       <meta charset="UTF-8">
       <title>Evaluation Report - ${escHtml(profileName)}</title>
       <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f7f9f8; color: #1f2a2e; padding: 2rem; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f8f9fa; color: #1a1d1f; padding: 2rem; }
         .container { max-width: 800px; margin: 0 auto; }
-        .header { text-align: center; margin-bottom: 3rem; }
-        .header h1 { margin: 0; font-size: 2rem; color: #1f2a2e; }
-        .header p { color: #5c6b73; margin-top: 0.5rem; }
-        .card { background: #fff; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e2e8e5; }
+        .header { text-align: left; margin-bottom: 3rem; border-bottom: 2px solid #005a70; padding-bottom: 1rem; }
+        .header h1 { margin: 0; font-size: 2rem; color: #005a70; font-family: "DM Serif Display", serif; }
+        .header p { color: #64748b; margin-top: 0.5rem; }
+        .card { background: #fff; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid #dee2e6; }
         .card-header { display: flex; justify-content: space-between; align-items: start; border-bottom: 1px solid #e2e8e5; padding-bottom: 1rem; margin-bottom: 1rem; }
         .applicant-name { font-size: 1.3rem; font-weight: 600; margin: 0; }
         .score-wrap { text-align: right; }
@@ -708,10 +722,10 @@ function exportEvaluations() {
   `;
 
   doneApps.forEach(app => {
-    let color = '#2f6f5e';
-    if (app.result.score < 40) color = '#d94f3c';
-    else if (app.result.score < 70) color = '#f2a65a';
-    else if (app.result.score < 85) color = '#5da9e9';
+    let color = '#005a70';
+    if (app.result.score < 40) color = '#b91c1c';
+    else if (app.result.score < 70) color = '#b45309';
+    else if (app.result.score < 85) color = '#0369a1';
 
     htmlContent += `
         <div class="card">
