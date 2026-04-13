@@ -35,5 +35,5 @@
       "weight": 7
     }
   ],
-  "ollama_model": "gemma3:1b"
+  "ollama_model": "gemma3:4b"
 }

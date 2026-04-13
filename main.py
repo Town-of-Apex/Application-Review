@@ -7,7 +7,7 @@ import threading
 
 def open_browser():
     time.sleep(1.5)
-    webbrowser.open("http://localhost:8000")
+    webbrowser.open("http://localhost:3000")
 
 
 def main():
@@ -15,7 +15,7 @@ def main():
     threading.Thread(target=open_browser, daemon=True).start()
     try:
         import uvicorn
-        uvicorn.run("app.server:app", host="0.0.0.0", port=8000, reload=False)
+        uvicorn.run("app.server:app", host="0.0.0.0", port=3000, reload=False)
     except ImportError:
         print("ERROR: uvicorn is not installed. Run: uv sync")
         sys.exit(1)

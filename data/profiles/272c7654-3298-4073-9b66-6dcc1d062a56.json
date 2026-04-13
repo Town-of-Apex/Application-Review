@@ -1,0 +1,45 @@
+{
+  "id": "272c7654-3298-4073-9b66-6dcc1d062a56",
+  "name": "Parks Planning Intern",
+  "description": "Intern supporting the Parks, Recreation, and Community Resources department's park planning projects. For an internship, the completion of a degree is greatly reduced in importance, as it is geared towards students who have not finished their degree or diploma.",
+  "job_description": "Have you ever wanted to know how parks and greenways are planned, funded, and constructed?  Join our Parks Planning team and you'll participate in numerous aspects of how projects identified in our Master Plan for Parks, Recreation, Cultural Resources, Greenways and Open Space go from concept to reality. The Town of Apex is seeking candidates for multiple Public Service Internship (Parks Planning) positions for 2026-2027. As a fast-growing community in southwestern Wake County, we are a full-service municipality offering a variety of opportunities for students looking to gain professional and practical experience.\nOpening date:       February 19,2026        Closing date:  Until filled \nCollege Student                   \tProfessional & Graduate Student        \n $16-$20/hour\t$25/hour\nWhy Intern with Apex?\n\nMake an Impact: Contribute to meaningful projects that shape the future of the Apex community.\nGain Valuable Experience: Work alongside experienced professionals in local government, learning the ins and outs of public administration and local government operations.\nDevelop Key Skills: Build your skills in areas such as communications, government budgeting, planning, policy development, community engagement, project management, and more.\nForm a Professional Network: Be part of an intern cohort and connect with leaders and decision-makers in government and public service.\nWhat We’re Looking For:\n\nPassion for Public Service: A desire to learn about local government and how it works to serve the community.\nStrong Communication Skills: Clear and effective communication, both written and verbal.\nProblem Solvers: Creative thinkers who are excited to contribute to solutions.\nTeam Players: Collaborative individuals who thrive in a team-oriented environment.\nHigh School, College, and Graduate Students: Ideal for those considering careers or pursuing degrees in public administration, political science, social sciences, or related fields.\nWhat We Offer:\n\nHands-on Experience: Real-world exposure to local government operations.\nMentorship: Guidance and advice from experienced professionals.\nGrowth Opportunities: Potential for future employment or continued involvement in government initiatives.\nFlexible Hours and Start Dates: We understand school comes first. We work around your academic calendar and availability to provide flexible start dates, fulltime hours during the summer, and part-time schedules during the school year.\nWhat You’ll Do:\n\nPublic Service Interns for Parks Planning Internships may:\nPrepare Illustrations, Documents and Maps using various platforms to provide information for funded projects from the Action + Implementation Plan\nReview Design Development/Construction Drawings and monitor construction of greenway corridors, and identify funding opportunities for additional miles.\nAssist in public engagement, project planning, and cost estimation for park/greenway projects.\nGain hands-on experience with public planning process through interactions with the Technical Review Committee., Advisory Commission, Planning Board, and Town Council for project approvals.\nBuild your portfolio, learn real world applications of standards in design and construction, or explore public policy in local services.\nHow to Apply:\nExcited to get started? Apply today by submitting a Town application, your resume, and a brief cover letter.  We are accepting applications until we fill all positions and will start reviewing applications on March 4, 2026. Don’t miss out – be part of Team Apex and make a difference!",
+  "criteria": [
+    {
+      "id": "8872e9e5-e13e-4745-b9ea-2182fb7938c5",
+      "name": "Public Service Motivation",
+      "description": "Demonstrated genuine interest in local government, community impact, or public service—not just generic “I want experience.” Look for specific references to civic engagement, community improvement, or government interest.",
+      "weight": 9
+    },
+    {
+      "id": "8fc2c7b9-613a-45c9-bc69-4052b13323ab",
+      "name": "Planning / Technical Alignment",
+      "description": "Exposure to or coursework in planning, GIS, landscape architecture, public administration, urban studies, or similar. Also credit self-taught or project-based experience (maps, design tools, etc.), not just formal education.",
+      "weight": 8
+    },
+    {
+      "id": "82ef70a8-a9bb-4135-83a7-67613b089027",
+      "name": "Communication Ability",
+      "description": "Clear, structured writing in the application materials. Ability to explain ideas simply and professionally—especially important for public engagement and working with boards/committees.",
+      "weight": 8
+    },
+    {
+      "id": "f9d5bdd1-ae38-4830-9d98-900eb1f61065",
+      "name": "Initiative, Leadership, and Problem Solving",
+      "description": "Evidence of taking ownership, solving problems, or going beyond assigned tasks (projects, leadership roles, creative solutions). Avoid rewarding passive participation.",
+      "weight": 7
+    },
+    {
+      "id": "7e7a3e44-163e-4158-9628-e4b7e28783c7",
+      "name": "Collaboration and Professionalism",
+      "description": "Experience working in teams, handling feedback, or operating in semi-professional environments (clubs, group projects, part-time jobs, etc.). Look for maturity and reliability signals.",
+      "weight": 6
+    },
+    {
+      "id": "05c01394-1dce-4810-980c-f21dbb622e07",
+      "name": "Relevant Skills / Tools Exposure",
+      "description": "Familiarity with tools or outputs relevant to the role—mapping, design software, spreadsheets, research, presentations, or documentation. Doesn’t need to be advanced, just usable.",
+      "weight": 6
+    }
+  ],
+  "ollama_model": "gemma3:4b"
+}
