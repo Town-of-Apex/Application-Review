@@ -20,6 +20,9 @@ COPY . .
 # Ensure local data directory is available and writable
 RUN mkdir -p /app/data && chmod -R 777 /app/data
 
-EXPOSE 8000
+ENV IS_DOCKER=true
+ENV PORT=8500
+
+EXPOSE 8500
 
 CMD ["uv", "run", "main.py"]

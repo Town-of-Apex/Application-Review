@@ -1,12 +1,12 @@
-version: '3.8'
-
 services:
   app-review:
     build: .
     container_name: app-review-web
     ports:
-      - "8000:8000"
+      - "8500:8500"
     environment:
+      - PORT=8500
+      - IS_DOCKER=true
       # Connects to the host server's local Ollama instance on 11434
       - OLLAMA_BASE_URL=http://host.docker.internal:11434
     volumes:
