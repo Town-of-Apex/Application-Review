@@ -54,7 +54,7 @@ The Application Review System serves as a bridge between high-volume application
     ```bash
     uv run main.py
     ```
-    The application will be accessible at `http://localhost:3000`.
+    The application will be accessible at `http://localhost:8500`.
 
 ### Docker Deployment
 
@@ -63,7 +63,7 @@ For server-based deployment, a Docker Compose configuration is provided:
 1.  **Build and start the container**:
 
     ```bash
-    docker-compose up -d
+    docker-compose up -d --build
     ```
 
 2.  **Configuration**:

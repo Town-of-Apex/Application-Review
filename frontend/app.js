@@ -31,7 +31,7 @@ async function checkOllamaStatus() {
   const el   = document.getElementById('ollama-status');
   const text = document.getElementById('ollama-status-text');
   try {
-    const res  = await fetch('/api/ollama-status');
+    const res  = await fetch(window.APP_BASE_PATH + '/api/ollama-status');
     const data = await res.json();
     if (data.connected) {
       el.className = 'ollama-status connected';
@@ -50,7 +50,7 @@ async function checkOllamaStatus() {
 // ── Profile loading ───────────────────────────────────────────
 async function loadProfiles() {
   try {
-    const res = await fetch('/api/profiles');
+    const res = await fetch(window.APP_BASE_PATH + '/api/profiles');
     profiles  = await res.json();
     rebuildProfileSelect();
   } catch (e) {
@@ -305,7 +305,7 @@ async function startBatchEvaluation() {
     }
 
     try {
-      const res = await fetch('/api/evaluate', { method: 'POST', body: form });
+      const res = await fetch(window.APP_BASE_PATH + '/api/evaluate', { method: 'POST', body: form });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || 'Evaluation failed.');
       app.status = 'done';
@@ -552,7 +552,7 @@ function removeCriterion(index) {
 async function fetchAvailableModels() {
   const hint = document.getElementById('available-models-hint');
   try {
-    const res  = await fetch('/api/ollama-status');
+    const res  = await fetch(window.APP_BASE_PATH + '/api/ollama-status');
     const data = await res.json();
     if (data.connected && data.models.length) {
       hint.textContent = `Available: ${data.models.join(', ')}`;
@@ -594,13 +594,13 @@ async function saveProfile() {
   try {
     let res;
     if (editingProfileId) {
-      res = await fetch(`/api/profiles/${editingProfileId}`, {
+      res = await fetch(window.APP_BASE_PATH + `/api/profiles/${editingProfileId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
     } else {
-      res = await fetch('/api/profiles', {
+      res = await fetch(window.APP_BASE_PATH + '/api/profiles', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -634,7 +634,7 @@ async function executeDeleteProfile() {
   document.getElementById('delete-modal').classList.add('hidden');
   if (!editingProfileId) return;
   try {
-    const res = await fetch(`/api/profiles/${editingProfileId}`, { method: 'DELETE' });
+    const res = await fetch(window.APP_BASE_PATH + `/api/profiles/${editingProfileId}`, { method: 'DELETE' });
     if (!res.ok) throw new Error('Delete failed.');
     showToast('Profile deleted.', 'info');
     editingProfileId = null;

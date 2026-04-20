@@ -23,9 +23,11 @@ def main():
     
     try:
         import uvicorn
-        uvicorn.run("app.server:app", host="0.0.0.0", port=port, reload=False)
-    except ImportError:
-        print("ERROR: uvicorn is not installed. Run: uv sync")
+        uvicorn.run("app.server:app", host="0.0.0.0", port=port, reload=False, proxy_headers=True, forwarded_allow_ips="*")
+    except ImportError as e:
+        import traceback
+        traceback.print_exc()
+        print("ERROR: Something failed to import. Run: uv sync")
         sys.exit(1)
 
 

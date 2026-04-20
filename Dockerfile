@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.13-slim
 
 # Install system dependencies to install uv
 RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates && rm -rf /var/lib/apt/lists/*
@@ -21,8 +21,9 @@ COPY . .
 RUN mkdir -p /app/data && chmod -R 777 /app/data
 
 ENV IS_DOCKER=true
-ENV PORT=8500
+ENV PORT=8080
+ENV BASE_PATH=/app-review
 
-EXPOSE 8500
+EXPOSE 8080
 
 CMD ["uv", "run", "main.py"]

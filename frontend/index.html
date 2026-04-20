@@ -5,11 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Application Review | Town of Apex</title>
   <meta name="description" content="AI-assisted application screening tool for internships and volunteer positions. Generate alignment scores to help staff prioritize their review queue." />
+  
+  <base href="{{ app_base_path }}/">
+  <script>window.APP_BASE_PATH = "{{ app_base_path }}";</script>
+
   <!-- 1. Universal design system -->
-  <link rel="stylesheet" href="/static/apex-modern.css" />
+  <link rel="stylesheet" href="static/apex-modern.css" />
   <!-- 2. App-specific styles -->
-  <link rel="stylesheet" href="/static/style.css" />
-  <link rel="icon" href="/static/icon.ico" sizes="any" />
+  <link rel="stylesheet" href="static/style.css" />
+  <link rel="icon" href="static/icon.ico" sizes="any" />
 </head>
 <body>
 
@@ -17,7 +21,7 @@
   <header>
     <div class="app-container">
       <div class="header-content">
-        <img src="/static/logo.svg" class="app-logo" alt="Town of Apex logo" />
+        <img src="static/logo.svg" class="app-logo" alt="Town of Apex logo" />
         <h1 class="title-display">Application Review</h1>
 
         <nav class="app-nav">
@@ -355,6 +359,6 @@
   <!-- ── Toast container ─────────────────────────────── -->
   <div class="toast-container" id="toast-container"></div>
 
-  <script src="/static/app.js"></script>
+  <script src="static/app.js"></script>
 </body>
 </html>

@@ -2,17 +2,31 @@ services:
   app-review:
     build: .
     container_name: app-review-web
-    ports:
-      - "8500:8500"
+    # ports:
+    #   - "8080:8080" # Standardized internal port
     environment:
-      - PORT=8500
+      - PORT=8080
+      - BASE_PATH=/app-review
       - IS_DOCKER=true
       # Connects to the host server's local Ollama instance on 11434
       - OLLAMA_BASE_URL=http://host.docker.internal:11434
     volumes:
       # Mount the profiles data to persist across container restarts
       - ./data:/app/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=apex-internal"
+      # ROUTE: Match anything starting with /app-review
+      - "traefik.http.routers.app-review.rule=PathPrefix(`/app-review`)"
+      # PORT: Tell Traefik the app listens on 8080 (AAS-1.0 standard)
+      - "traefik.http.services.app-review.loadbalancer.server.port=8080"
     extra_hosts:
       # Ensure host.docker.internal works correctly to map to host localhost on Linux servers
       - "host.docker.internal:host-gateway"
+    networks:
+      - apex-internal
     restart: unless-stopped
+
+networks:
+  apex-internal:
+    external: true

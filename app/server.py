@@ -1,7 +1,9 @@
+import os
 from pathlib import Path
-from fastapi import FastAPI, HTTPException, UploadFile, File, Form
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
 from pydantic import ValidationError
 
 from app.models import PositionProfile
@@ -11,7 +13,10 @@ from app.pdf_parser import extract_text_from_pdf
 
 FRONTEND_DIR = Path(__file__).parent.parent / "frontend"
 
-app = FastAPI(title="Application Review", version="0.1.0")
+BASE_PATH = os.getenv("BASE_PATH", "").rstrip('/')
+app = FastAPI(title="Application Review", version="0.1.0", root_path=BASE_PATH)
+
+templates = Jinja2Templates(directory=str(FRONTEND_DIR))
 
 # ── Startup ──────────────────────────────────────────────────────────────────
 
@@ -129,7 +134,10 @@ async def ollama_status():
 app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR)), name="static")
 
 
-@app.get("/{full_path:path}")
-async def serve_spa(full_path: str):
-    index = FRONTEND_DIR / "index.html"
-    return FileResponse(str(index))
+@app.get("/{full_path:path}", response_class=HTMLResponse)
+async def serve_spa(request: Request, full_path: str):
+    return templates.TemplateResponse(
+        request=request,
+        name="index.html", 
+        context={"app_base_path": BASE_PATH}
+    )
